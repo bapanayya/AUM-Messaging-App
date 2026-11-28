@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AAM: Sovereign Privacy-First Messaging & Social Media Platform — Architecture & Technical Specifications</title>
+  <meta name="description" content="Comprehensive technical architecture and characteristic features specification of AAM — a sovereign, end-to-end encrypted messaging and social platform built with React 19, TypeScript, Capacitor 6, Android 15, and WebRTC.">
+  <link rel="icon" type="image/svg+xml" href="client/public/favicon.svg">
+  <style>
+    :root {
+      --bg-dark: #080c17;
+      --bg-surface: #0f172a;
+      --bg-card: #131c31;
+      --bg-card-hover: #18233d;
+      --border: #1e293b;
+      --border-accent: rgba(245, 158, 11, 0.3);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --saffron: #f59e0b;
+      --saffron-light: #fbbf24;
+      --saffron-glow: rgba(245, 158, 11, 0.15);
+      --orange: #f97316;
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.15);
+      --sky: #38bdf8;
+      --sky-glow: rgba(56, 189, 248, 0.15);
+      --violet: #a855f7;
+      --violet-glow: rgba(168, 85, 247, 0.15);
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.65;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Container & Layout */
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 64px 24px;
+    }
+
+    /* Header & Hero */
+    header.hero {
+      position: relative;
+      background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 45%),
+                  radial-gradient(circle at top left, rgba(16, 185, 129, 0.08), transparent 40%),
+                  var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px 40px;
+      margin-bottom: 40px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero-top-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .pill-saffron {
+      background: var(--saffron-glow);
+      color: var(--saffron);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .pill-emerald {
+      background: var(--emerald-glow);
+      color: var(--emerald);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .pill-sky {
+      background: var(--sky-glow);
+      color: var(--sky);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+
+    .hero-title-group {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+
+    .hero-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.35);
+      flex-shrink: 0;
+    }
+
+    h1.hero-title {
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1.2;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+
+    p.hero-subtitle {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 900px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .hero-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      margin-top: 24px;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+
+    .meta-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Table of Contents / Sticky Jump Bar */
+    nav.jump-nav {
+      position: sticky;
+      top: 16px;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 10px 16px;
+      margin-bottom: 40px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    nav.jump-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    nav.jump-nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 10px;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    nav.jump-nav a:hover {
+      color: var(--saffron);
+      background: var(--saffron-glow);
+    }
+
+    /* Content Section Headings */
+    section.doc-section {
+      margin-bottom: 56px;
+      scroll-margin-top: 80px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+    }
+
+    .section-icon {
+      font-size: 24px;
+    }
+
+    h2.section-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+    }
+
+    .section-desc {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    /* Cards & Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(245, 158, 11, 0.4);
+      box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .card-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      margin-bottom: 12px;
+    }
+
+    .badge-gold { background: rgba(245, 158, 11, 0.15); color: var(--saffron); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-green { background: rgba(16, 185, 129, 0.15); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-blue { background: rgba(56, 189, 248, 0.15); color: var(--sky); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge-purple { background: rgba(168, 85, 247, 0.15); color: var(--violet); border: 1px solid rgba(168, 85, 247, 0.3); }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-body {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .card-body ul {
+      margin-top: 10px;
+      padding-left: 20px;
+    }
+
+    .card-body li {
+      margin-bottom: 6px;
+    }
+
+    /* Comparison Table */
+    .table-responsive {
+      overflow-x: auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      margin: 24px 0;
+    }
+
+    table.spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    table.spec-table th {
+      background: rgba(15, 23, 42, 0.85);
+      color: #fff;
+      font-weight: 700;
+      padding: 16px 20px;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+
+    table.spec-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      vertical-align: top;
+    }
+
+    table.spec-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.spec-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .highlight-cell {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Code Blocks & Architecture Boxes */
+    pre, code {
+      font-family: var(--font-mono);
+    }
+
+    pre.code-block {
+      background: #050811;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      overflow-x: auto;
+      font-size: 13px;
+      color: #e2e8f0;
+      line-height: 1.55;
+      margin: 16px 0;
+    }
+
+    .code-accent { color: var(--saffron); }
+    .code-comment { color: var(--text-dim); font-style: italic; }
+    .code-keyword { color: #f43f5e; }
+    .code-string { color: var(--emerald); }
+
+    /* Interactive / Visual Diagrams */
+    .diagram-container {
+      background: #090e1a;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+
+    .flow-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .flow-step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--saffron);
+      color: #000;
+      font-weight: 800;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-content h4 {
+      font-size: 14px;
+      color: #fff;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .step-content p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    /* Footer */
+    footer.doc-footer {
+      border-top: 1px solid var(--border);
+      padding-top: 32px;
+      margin-top: 64px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    footer.doc-footer a {
+      color: var(--saffron);
+      text-decoration: none;
+    }
+
+    footer.doc-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .app-container {
+        padding: 16px 12px 40px 12px;
+      }
+      header.hero {
+        padding: 28px 20px;
+        border-radius: 18px;
+      }
+      h1.hero-title {
+        font-size: 24px;
+      }
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- HERO HEADER -->
+    <header class="hero">
+      <div class="hero-top-badges">
+        <span class="pill-badge pill-saffron">🇮🇳 Proudly Make in India</span>
+        <span class="pill-badge pill-emerald">🔒 End-to-End Encrypted (AES-GCM 256)</span>
+        <span class="pill-badge pill-sky">📱 Android 15 • Target SDK 36</span>
+        <span class="pill-badge pill-saffron">🌐 WebRTC Peer-to-Peer</span>
+      </div>
+
+      <div class="hero-title-group">
+        <div class="hero-logo">🕉️</div>
+        <div>
+          <h1 class="hero-title">AAM: Sovereign Privacy-First Messaging & Social Media</h1>
+          <p style="font-size: 14px; color: var(--saffron-light); font-weight: 600; margin-top: 4px;">Complete System Architecture, Characteristic Features & Technology Specifications</p>
+        </div>
+      </div>
+
+      <p class="hero-subtitle">
+        AAM establishes a breakthrough sovereign communication paradigm where the user's personal device acts as the primary storage and delivery engine. Built with military-grade client-side encryption, WebRTC real-time voice and video, sender-side offline queues, and user-controlled contact advertising, AAM eliminates centralized server retention and preserves absolute user data sovereignty.
+      </p>
+
+      <div class="hero-meta-grid">
+        <div class="meta-item">
+          <span class="meta-label">Application Version</span>
+          <span class="meta-value">1.0.0 (Release Build)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Package Name</span>
+          <span class="meta-value"><code>in.AAM.messaging</code></span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Target Platform</span>
+          <span class="meta-value">Android (SDK 36) & Progressive Web App</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Regulatory Alignment</span>
+          <span class="meta-value">DPDP Act 2023 & GDPR Compliant</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- STICKY JUMP NAVIGATION -->
+    <nav class="jump-nav">
+      <a href="#vision">Executive Vision</a>
+      <a href="#storage-modes">3 Storage Modes</a>
+      <a href="#core-features">Characteristic Features</a>
+      <a href="#tech-stack">Technology Stack</a>
+      <a href="#offline-engine">Sovereign Offline Store</a>
+      <a href="#security">Security & Privacy</a>
+      <a href="#codebase">Codebase Structure</a>
+    </nav>
+
+    <!-- SECTION 1: EXECUTIVE VISION & ARCHITECTURAL PARADIGM -->
+    <section id="vision" class="doc-section">
+      <div class="section-header">
+        <span class="section-icon">🌟</span>
+        <h2 class="section-title">1. Executive Overview & Architectural Paradigm</h2>
+      </div>
+      <p class="section-desc">
+        Modern digital communication has long been dominated by centralized client-server silos that harvest user interaction graphs, log private contacts, and retain encrypted or unencrypted media indefinitely on central servers. AAM fundamentally re-architects this model.
+      </p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-badge badge-gold">Sovereign Device-First Model</div>
+          <h3 class="card-title">Primary Device Storage</h3>
+          <div class="card-body">
+            In AAM's default architecture, the sender's and recipient's hardware devices serve as the single source of truth. The application core stores zero persistent plaintext or media content in central databases. Content is held securely in the sender's client database until the recipient connects, establishing direct peer-to-peer delivery.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-badge badge-green">Pure Privacy Architecture</div>
+          <h3 class="card-title">Zero Behavioral Harvesting</h3>
+          <div class="card-body">
+            AAM eliminates all third-party tracking scripts, advertising auction SDKs, behavioral analytics, and telemetry beacons. User identity discovery is strictly mutual via verified contact requests, ensuring no spam, unsolicited scraping, or unsolicited message delivery.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: THE 3 STORAGE MODES -->
+    <section id="storage-modes" class="doc-section">
+      <div class="section-header">
+        <span class="section-icon">🛡️</span>
+        <h2 class="section-title">2. Core Innovation: The 3 User-Selectable Storage Modes</h2>
+      </div>
+      <p class="section-desc">
+        AAM empowers each user to choose their preferred data residency model during onboarding, with instant, transparent migration available at any time through the in-app Storage Management center.
+      </p>
+
+      <div class="grid-3">
+        <div class="card" style="border-top: 4px solid var(--saffron);">
+          <div class="card-badge badge-gold">Mode 1 • Default & Free</div>
+          <h3 class="card-title">Local Device Storage</h3>
+          <div class="card-body">
+            <p><strong>Zero Cloud Footprint.</strong> All messages, high-resolution photos, audio recordings, and videos reside exclusively on the user's physical device.</p>
+            <ul>
+              <li>Persistent Cloud Footprint: <strong>0 Bytes (Zero)</strong></li>
+              <li>Recipient Offline Flow: <strong>Sender-Side Queue</strong></li>
+              <li>Signature Feature: <strong>"My Pending Transfers"</strong></li>
+              <li>Delivery Model: Direct WebRTC / ephemeral relay</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card" style="border-top: 4px solid var(--emerald);">
+          <div class="card-badge badge-green">Mode 2 • Safety Tier</div>
+          <h3 class="card-title">Local Store + Encrypted Backup</h3>
+          <div class="card-body">
+            <p><strong>Hardware Loss Protection.</strong> Device remains primary working store, with on-demand or scheduled encrypted snapshot backups.</p>
+            <ul>
+              <li>Key Management: <strong>Client-derived passphrases</strong></li>
+              <li>Cloud Payload: <strong>Opaque ciphertext blob</strong></li>
+              <li>Server Visibility: Cannot read or restore backups</li>
+              <li>Portability: Seamless restore on new device</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card" style="border-top: 4px solid var(--sky);">
+          <div class="card-badge badge-blue">Mode 3 • Multi-Device</div>
+          <h3 class="card-title">Paid Encrypted Cloud Sync</h3>
+          <div class="card-body">
+            <p><strong>Multi-Screen Real-Time Sync.</strong> Messages and media synchronize across phones, tablets, and desktops seamlessly.</p>
+            <ul>
+              <li>Offline Delivery: Server holds ciphertext buffer</li>
+              <li>Sender Online Requirement: <strong>None</strong></li>
+              <li>Encryption: E2EE envelope before network transmit</li>
+              <li>Cloud Storage: Zero plaintext retention</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Matrix Table -->
+      <div class="table-responsive">
+        <table class="spec-table">
+          <thead>
+            <tr>
+              <th>Evaluation Dimension</th>
+              <th>Mode 1: Local Device Storage (Default)</th>
+              <th>Mode 2: Local + Encrypted Backup</th>
+              <th>Mode 3: Paid Encrypted Cloud Sync</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="highlight-cell">Primary Working Store</td>
+              <td><strong>Local Device Only</strong> (Hardware sandbox)</td>
+              <td><strong>Local Device</strong> (With snapshot archive)</td>
+              <td><strong>Encrypted Cloud Sync</strong> + Local Cache</td>
+            </tr>
+            <tr>
+              <td class="highlight-cell">Persistent Central Data</td>
+              <td><span style="color: var(--emerald); font-weight: 700;">Zero (0 Bytes)</span></td>
+              <td>Client-encrypted ciphertext backup blobs</td>
+              <td>E2EE encrypted message stream</td>
+            </tr>
+            <tr>
+              <td class="highlight-cell">Recipient Offline Behavior</td>
+              <td>Safely held in sender's local queue</td>
+              <td>Safely held in sender's local queue</td>
+              <td>Buffered in cloud for asynchronous pickup</td>
+            </tr>
+            <tr>
+              <td class="highlight-cell">Sender Requirement</td>
+              <td>Sender phone must reconnect to complete delivery</td>
+              <td>Sender phone must reconnect to complete delivery</td>
+              <td>Recipient receives even if sender phone is off</td>
+            </tr>
+            <tr>
+              <td class="highlight-cell">"My Pending Transfers" Screen</td>
+              <td><span style="color: var(--saffron); font-weight: 700;">Active & Primary Management View</span></td>
+              <td><span style="color: var(--saffron); font-weight: 700;">Active & Primary Management View</span></td>
+              <td>Automatic cloud handling (Not needed)</td>
+            </tr>
+            <tr>
+              <td class="highlight-cell">Commercial Tier</td>
+              <td><span style="color: var(--emerald); font-weight: 700;">100% Free Forever</span></td>
+              <td>Optional backup tier</td>
+              <td>Paid Subscription</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 3: CHARACTERISTIC FEATURES IN DETAIL -->
+    <section id="core-features" class="doc-section">
+      <div class="section-header">
+        <span class="section-icon">📲</span>
+        <h2 class="section-title">3. Comprehensive Feature Suite Breakdown</h2>
+      </div>
+      <p class="section-desc">
+        Every feature in AAM was engineered from first principles to balance modern user expectations with strict data sovereignty.
+      </p>
+
+      <div class="grid-2">
+        <!-- Feature 1: E2EE Messaging -->
+        <div class="card">
+          <div class="card-badge badge-gold">Core Communication</div>
+          <h3 class="card-title">💬 End-to-End Encrypted Messaging (1:1 & Groups)</h3>
+          <div class="card-body">
+            Full-fidelity private messaging supporting text, high-resolution photography, 1080p video, and voice notes.
+            <ul>
+              <li><strong>Cryptographic Safety Numbers:</strong> 12-digit visual fingerprints (e.g. <code>4820 9183 2049</code>) generated from SHA-256 digests of public keys to verify contact identities out-of-band.</li>
+              <li><strong>4-Tier Delivery Receipts:</strong>
+                <br>• 🕒 <strong>Pending (Clock):</strong> Recipient offline; queued locally on sender's device.
+                <br>• ✓ <strong>Sent (Single Check):</strong> Transmitted to network gateway.
+                <br>• ✓✓ <strong>Delivered (Double Check):</strong> Received by recipient device.
+                <br>• ✓✓ <strong>Read (Double Blue Check):</strong> Decrypted and viewed by recipient.
+              </li>
+              <li><strong>Interactive Audio Notes:</strong> Live Web Audio waveforms rendered dynamically with play/pause and progress scrubbing.</li>
+              <li><strong>Social Expressiveness:</strong> 1-tap emoji reactions (👍, ❤️, 😂, 😮, 😢, 🙏, 🔥), message starring, and full search.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Feature 2: Calling -->
+        <div class="card">
+          <div class="card-badge badge-green">Real-Time Audio / Video</div>
+          <h3 class="card-title">📞 WebRTC Peer-to-Peer Voice & Video Calling</h3>
+          <div class="card-body">
+            Direct peer-to-peer real-time communication engine delivering ultra-low-latency calls with zero server audio/video interception.
+            <ul>
+              <li><strong>1-on-1 & Group Calling:</strong> Dynamic SDP offer/answer exchange and ICE candidate negotiation over WebSockets.</li>
+              <li><strong>Procedural Web Audio Ringtones:</strong> Built-in dual-tone audio oscillator synthesizer producing realistic caller and ringback tones without downloading external MP3 files.</li>
+              <li><strong>Complete In-Call Suite:</strong> Live call duration counter, microphone mute, camera toggle, and front/back lens flipping.</li>
+              <li><strong>Sovereign Call History:</strong> Local-only call logs detailing incoming, outgoing, and missed calls with 1-tap redial.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Feature 3: Pending Transfers -->
+        <div class="card">
+          <div class="card-badge badge-gold">Signature Innovation</div>
+          <h3 class="card-title">⏳ "My Pending Transfers" Sender-Side Queue</h3>
+          <div class="card-body">
+            The visible manifestation of AAM's Mode 1 architecture:
+            <ul>
+              <li><strong>Transparent Queue Inspector:</strong> When a recipient is offline, outbound media and files are not stored on foreign cloud servers. They remain indexed locally in the sender's client database.</li>
+              <li><strong>Granular Control:</strong> Senders view recipient name, file format, thumbnail, payload size (KB/MB), and timestamp.</li>
+              <li><strong>Actionable Management:</strong> Provides instantaneous <strong>Manual Retry</strong> to trigger immediate peer reconnection or <strong>Cancel</strong> to purge queued transfers before delivery.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Feature 4: Daily Moments Feed -->
+        <div class="card">
+          <div class="card-badge badge-purple">Social Discovery</div>
+          <h3 class="card-title">🎬 Daily Moments Feed (Chronological Media Stream)</h3>
+          <div class="card-body">
+            A vertical, frictionless daily timeline of photographs and video clips shared exclusively by accepted contacts.
+            <ul>
+              <li><strong>24-Hour Rollover:</strong> Content posted to Daily Moments stays highlighted for the current day.</li>
+              <li><strong>Automatic Midnight Archiving:</strong> At 00:00, moments automatically fold seamlessly into regular private chat histories, preventing stale clutter.</li>
+              <li><strong>Private Conversational Replies:</strong> 1-tap "Reply in Private Chat" initiates an immediate end-to-end encrypted message referencing the moment.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Feature 5: 24h Status Stories -->
+        <div class="card">
+          <div class="card-badge badge-purple">Ephemeral Social</div>
+          <h3 class="card-title">⭕ 24-Hour Ephemeral Status Updates</h3>
+          <div class="card-body">
+            Disappearing ephemeral storytelling with customizable text and photography.
+            <ul>
+              <li><strong>Vibrant Gradient Text Stories:</strong> Instant status publishing with curated gradient palettes (<em>Saffron Aura, Sovereign Bharat, Deep Space</em>).</li>
+              <li><strong>Photo Stories:</strong> High-definition image uploads with custom captions and duration tags.</li>
+              <li><strong>Auto-Advancing Engine:</strong> Smooth 6-second segment progress bars with pause-on-hold interaction.</li>
+              <li><strong>Viewer Insights:</strong> Real-time viewer counter showing exactly which mutual contacts opened the status.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Feature 6: Sovereign Ads Space -->
+        <div class="card">
+          <div class="card-badge badge-gold">Contact Commerce</div>
+          <h3 class="card-title">📢 Sovereign Ads Space (Vertical Full-Screen Showcase)</h3>
+          <div class="card-body">
+            A full-screen vertical swipeable showcase enabling users, creators, and local businesses to broadcast advertisements directly to their accepted contacts.
+            <ul>
+              <li><strong>Immersive Vertical Layout:</strong> Auto-looping video and photo showcases with custom price badges and category chips (e.g. <em>#Handloom, #Artisan, #Festive</em>).</li>
+              <li><strong>Direct Contact Engagement:</strong> Floating action bar with double-tap heart like animations, live share counter, and native Web Share integration.</li>
+              <li><strong>Instant E2EE Inquiry:</strong> Prominent <strong>"Inquire on Chat"</strong> button initiates an immediate encrypted conversation with the advertiser, referencing the listing.</li>
+              <li><strong>Privacy-Preserving Monetization:</strong> No algorithmic ad bidding, no tracking cookies, and no cross-site user surveillance. Advertisements are visible strictly to verified mutual contacts.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Feature 7: Social Graph -->
+        <div class="card">
+          <div class="card-badge badge-blue">Sovereign Graph</div>
+          <h3 class="card-title">👥 Mutual Handshake Contacts & User Directory</h3>
+          <div class="card-body">
+            Privacy-centric contact discovery designed to eliminate unsolicited spam:
+            <ul>
+              <li><strong>Multi-Field Search:</strong> Find contacts securely via unique username (e.g. <code>@aarav</code>), verified phone number (e.g. <code>+91 98765 43210</code>), or registered email.</li>
+              <li><strong>Mutual Handshake Protocol:</strong> Messaging is prohibited until a bidirectional friend request is explicitly accepted.</li>
+              <li><strong>Comprehensive Blacklist:</strong> Instant 1-tap user blocking that immediately terminates real-time presence heartbeats, calls, incoming transfers, and messages.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Feature 8: Responsive Chassis & Account Switcher -->
+        <div class="card">
+          <div class="card-badge badge-green">Developer Experience</div>
+          <h3 class="card-title">📱 Responsive Chassis & Demo Account Switcher</h3>
+          <div class="card-body">
+            Engineered for seamless multi-environment demonstration and testing:
+            <ul>
+              <li><strong>Desktop Mobile Simulator Frame:</strong> Interactive toggle wrapping the app in a realistic iPhone 16 / Pixel 9 physical chassis with native status and gesture indicators.</li>
+              <li><strong>1-Click Perspective Switcher:</strong> Instant hot-switching between 4 seeded Indian demo accounts (Aarav Sharma, Priya Patel, Vikram Malhotra, Ananya Iyer) to test real-time P2P calling and pending queues on a single screen.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: FULL TECHNOLOGY STACK -->
+    <section id="tech-stack" class="doc-section">
+      <div class="section-header">
+        <span class="section-icon">⚙️</span>
+        <h2 class="section-title">4. Complete Technology Stack & Specifications</h2>
+      </div>
+      <p class="section-desc">
+        The application is architected across four distinct layers: modern single-page web client, native hybrid mobile shell, real-time backend signaling gateway, and automated CI/CD release engineering.
+      </p>
+
+      <div class="grid-2">
+        <!-- Frontend Stack -->
+        <div class="card">
+          <div class="card-badge badge-gold">Frontend Architecture</div>
+          <h3 class="card-title">React 19 & TypeScript Client</h3>
+          <div class="card-body">
+            <ul>
+              <li><strong>Core Framework:</strong> React 19.x with functional components and modern concurrency hooks (<code>useState</code>, <code>useEffect</code>, <code>useContext</code>, <code>useRef</code>).</li>
+              <li><strong>Language:</strong> TypeScript 5.8 with strict typing across state models, API contracts, and WebSocket event payloads.</li>
+              <li><strong>Build Engine:</strong> Vite 5.x delivering sub-second HMR, tree-shaking, and minified production bundles.</li>
+              <li><strong>Styling & Design System:</strong> Tailwind CSS v4 with custom dark mode theme variables, glassmorphic filters, and touch-optimized responsive layout.</li>
+              <li><strong>Vector Iconography:</strong> Lucide React for crisp, scalable UI icons.</li>
+              <li><strong>Hardware Cryptography:</strong> Web Crypto API (<code>window.crypto.subtle</code>) for hardware-accelerated AES-GCM 256-bit encryption and SHA-256 hashing.</li>
+              <li><strong>Web Audio Engine:</strong> Web Audio API (<code>AudioContext</code>) with procedural sine/square oscillators for zero-dependency ringtone generation and dynamic voice waveforms.</li>
+              <li><strong>Peer-to-Peer Media:</strong> WebRTC APIs (<code>RTCPeerConnection</code>, <code>navigator.mediaDevices.getUserMedia</code>, ICE candidate negotiation).</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Android & Hybrid Mobile Stack -->
+        <div class="card">
+          <div class="card-badge badge-sky">Mobile Platform</div>
+          <h3 class="card-title">Capacitor 6 & Android 15 (SDK 36)</h3>
+          <div class="card-body">
+            <ul>
+              <li><strong>Hybrid Bridge:</strong> Capacitor 6.x (<code>@capacitor/core</code>, <code>@capacitor/android</code>, <code>@capacitor/cli</code>) converting modern web applications into native Android binaries.</li>
+              <li><strong>Target Android SDK:</strong> <strong>SDK 36 (Android 15)</strong>, strictly complying with Google Play's latest target API requirements.</li>
+              <li><strong>Compilation SDK:</strong> <strong>SDK 36</strong> with Java 21 LTS build tooling.</li>
+              <li><strong>Minimum Android SDK:</strong> <strong>SDK 24 (Android 7.0 Nougat)</strong>, providing 96%+ global device coverage.</li>
+              <li><strong>Cryptographic Release Signing:</strong> Production keystore (<code>upload-keystore.jks</code>) utilizing 2048-bit RSA keys and SHA-256 with RSA signatures.</li>
+              <li><strong>Distribution Formats:</strong>
+                <br>• <strong>Android App Bundle (AAB):</strong> Optimized for Google Play Store dynamic split delivery.
+                <br>• <strong>Universal APK:</strong> Direct sideloading and internal hardware testing.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Backend Stack -->
+        <div class="card">
+          <div class="card-badge badge-green">Backend & Gateway</div>
+          <h3 class="card-title">Node.js, Express & WebSocket Gateway</h3>
+          <div class="card-body">
+            <ul>
+              <li><strong>Runtime:</strong> Node.js v20 / v22 LTS with ES module execution.</li>
+              <li><strong>Server Framework:</strong> Express.js with TypeScript supporting REST endpoints for auth, profile, contacts, storage, and feed.</li>
+              <li><strong>Real-Time Duplex Gateway:</strong> <code>ws</code> WebSocket server handling persistent presence heartbeats, instant message dispatch, delivery receipts, and WebRTC signaling (SDP offer/answer, ICE candidates).</li>
+              <li><strong>Data Layer:</strong> Pure relational JSON database engine (<code>server/src/db/storage.ts</code>) with atomic buffer writes, maintaining zero plaintext chat data in Mode 1.</li>
+              <li><strong>Authentication:</strong> Salted password hashing via <code>bcryptjs</code>, JSON Web Tokens (JWT), and secure UUIDv4 session identifiers.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- DevOps & CI/CD -->
+        <div class="card">
+          <div class="card-badge badge-purple">DevOps & Cloud</div>
+          <h3 class="card-title">GitHub Actions CI/CD Pipeline</h3>
+          <div class="card-body">
+            <ul>
+              <li><strong>Two-Stage Web Deployment:</strong> <code>deploy.yml</code> splitting compilation (<code>build</code> job on Node 22) from publication (<code>deploy</code> job with official <code>actions/deploy-pages@v4</code>) to eliminate artifact indexing race conditions.</li>
+              <li><strong>Android Release Automation:</strong> <code>android-build.yml</code> orchestrating JDK 21 setup, Android SDK command-line tools installation, Gradle daemon execution, and automated signing of production AAB and APK packages.</li>
+              <li><strong>Automated Releases:</strong> Automatic publishing of compiled release binaries to GitHub Releases on tag or workflow completion.</li>
+              <li><strong>Static Hosting:</strong> Zero-cost, high-availability hosting on GitHub Pages with <code>.nojekyll</code> SPA routing.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: SOVEREIGN CLIENT-SIDE OFFLINE ENGINE -->
+    <section id="offline-engine" class="doc-section">
+      <div class="section-header">
+        <span class="section-icon">💾</span>
+        <h2 class="section-title">5. Client-Side Sovereign Storage Engine</h2>
+      </div>
+      <p class="section-desc">
+        To allow the web application to run completely standalone on static hosting platforms (such as GitHub Pages) and mobile devices without requiring a locally running Node.js server, AAM incorporates an intelligent dual-mode storage engine.
+      </p>
+
+      <div class="diagram-container">
+        <h3 style="color: var(--saffron); font-size: 16px; margin-bottom: 14px;">Hybrid API Fallback Architecture</h3>
+        <div class="flow-steps">
+          <div class="flow-step-item">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h4>Primary Live API Probe</h4>
+              <p>When the application launches, the API layer checks if a live backend server is accessible at <code>/api</code> or <code>http://localhost:5000</code>.</p>
+            </div>
+          </div>
+          <div class="flow-step-item">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h4>Graceful Client-Side Sovereign Fallback</h4>
+              <p>If the network request encounters a timeout, connection refusal, or mixed-content block (as occurs when a GitHub Pages HTTPS site tries to fetch local HTTP), the client automatically activates <code>client/src/services/mockStorage.ts</code>.</p>
+            </div>
+          </div>
+          <div class="flow-step-item">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h4>Local Device Persistence</h4>
+              <p>The sovereign client store initializes realistic Indian demo seed datasets into browser <code>localStorage</code>, persisting user messages, status updates, contact lists, and ads locally across page reloads.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: SECURITY, COMPLIANCE & PLAY STORE READINESS -->
+    <section id="security" class="doc-section">
+      <div class="section-header">
+        <span class="section-icon">🔒</span>
+        <h2 class="section-title">6. Security Architecture & Play Store Compliance</h2>
+      </div>
+      <p class="section-desc">
+        AAM complies with international digital privacy regulations and Google Play's rigorous 2026 developer policies.
+      </p>
+
+      <div class="table-responsive">
+        <table class="spec-table">
+          <thead>
+            <tr>
+              <th>Google Play Data Safety Field</th>
+              <th>Status</th>
+              <th>Technical Implementation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="highlight-cell">Messages, Photos & Media</td>
+              <td><span style="color: var(--emerald); font-weight: 700;">Not Collected</span> (Mode 1 & 2)</td>
+              <td>Stored purely on client hardware. In transit, encrypted via AES-GCM 256; zero plaintext retained by server.</td>
+            </tr>
+            <tr>
+              <td class="highlight-cell">Voice & Video Calling</td>
+              <td><span style="color: var(--emerald); font-weight: 700;">Zero Audio/Video Recorded</span></td>
+              <td>Peer-to-peer WebRTC media streams with DTLS/SRTP hardware encryption. No server recordings exist.</td>
+            </tr>
+            <tr>
+              <td class="highlight-cell">Personal Identity Info</td>
+              <td>Username, Phone/Email for Discovery</td>
+              <td>Used solely for mutual contact pairing and account recovery. Never shared with third parties or data brokers.</td>
+            </tr>
+            <tr>
+              <td class="highlight-cell">Third-Party Trackers & Ads</td>
+              <td><span style="color: var(--emerald); font-weight: 700;">Zero (0 Trackers)</span></td>
+              <td>No Google Analytics, Firebase Analytics, Meta SDK, AppsFlyer, or commercial ad networks integrated.</td>
+            </tr>
+            <tr>
+              <td class="highlight-cell">Indian DPDP Act 2023</td>
+              <td><span style="color: var(--emerald); font-weight: 700;">100% Compliant</span></td>
+              <td>Full user consent, instant account erasure, zero behavioral profiling, sovereign domestic residency.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 7: CODEBASE MAP -->
+    <section id="codebase" class="doc-section">
+      <div class="section-header">
+        <span class="section-icon">📁</span>
+        <h2 class="section-title">7. Repository & Codebase Directory Map</h2>
+      </div>
+      <p class="section-desc">
+        A high-level view of the repository layout demonstrating separation of concerns between client, server, Android, and deployment tooling.
+      </p>
+
+      <pre class="code-block"><code><span class="code-comment"># Repository Root Directory Tree</span>
+<span class="code-accent">AAM-Messaging-App/</span>
+├── <span class="code-accent">android/</span>                                <span class="code-comment"># Native Android Studio Project</span>
+│   ├── app/
+│   │   ├── build.gradle                   <span class="code-comment"># Namespace 'in.AAM.messaging', Target SDK 36, Release Signing</span>
+│   │   ├── upload-keystore.jks            <span class="code-comment"># Production Play Store cryptographic signing keystore</span>
+│   │   └── src/main/AndroidManifest.xml   <span class="code-comment"># Permissions: Camera, Audio, Internet, Network State</span>
+│   └── variables.gradle                   <span class="code-comment"># compileSdkVersion=36, targetSdkVersion=36, minSdk=24</span>
+│
+├── <span class="code-accent">client/</span>                                 <span class="code-comment"># React 19 + TypeScript + Vite + Tailwind CSS Frontend</span>
+│   ├── src/
+│   │   ├── crypto/e2ee.ts                 <span class="code-comment"># AES-GCM 256 Web Crypto engine & 12-digit safety numbers</span>
+│   │   ├── webrtc/callEngine.ts           <span class="code-comment"># Peer connection manager & oscillator ringtone synth</span>
+│   │   ├── services/
+│   │   │   ├── api.ts                     <span class="code-comment"># REST client with automatic sovereign mockStorage fallback</span>
+│   │   │   ├── mockStorage.ts             <span class="code-comment"># Client-side offline database engine & seed records</span>
+│   │   │   └── socket.ts                  <span class="code-comment"># WebSocket client with heartbeat and auto-reconnect</span>
+│   │   ├── context/
+│   │   │   ├── AuthContext.tsx            <span class="code-comment"># Auth state & 4-perspective demo user switcher</span>
+│   │   │   ├── ChatContext.tsx            <span class="code-comment"># Messaging, delivery states, pending transfers</span>
+│   │   │   ├── CallContext.tsx            <span class="code-comment"># Active audio/video calls & incoming modals</span>
+│   │   │   └── SocialContext.tsx          <span class="code-comment"># Contacts, Daily Feed, 24h Status, Ads Space</span>
+│   │   └── components/
+│   │       ├── ads/AdsSpaceView.tsx       <span class="code-comment"># Full-screen vertical reels, likes, CTAs, chat inquiry</span>
+│   │       ├── calling/                   <span class="code-comment"># ActiveCallModal, IncomingCallModal, CallHistoryTab</span>
+│   │       ├── chat/                      <span class="code-comment"># ChatList, ChatWindow, PendingTransfersModal</span>
+│   │       ├── feed/DailyFeedReels.tsx    <span class="code-comment"># Chronological media feed & moment creation</span>
+│   │       ├── status/                    <span class="code-comment"># 24h Story viewer & gradient text creator</span>
+│   │       ├── storage/                   <span class="code-comment"># 3 Storage modes switcher & backup manager</span>
+│   │       └── layout/Navigation.tsx      <span class="code-comment"># Mobile-responsive horizontal-scroll bottom navigation</span>
+│   ├── public/                            <span class="code-comment"># Favicons, vector SVGs, and features documentation</span>
+│   └── vite.config.ts                     <span class="code-comment"># Build configuration & proxy rules</span>
+│
+├── <span class="code-accent">server/</span>                                 <span class="code-comment"># Node.js + Express + WebSocket Backend</span>
+│   ├── src/
+│   │   ├── db/storage.ts                  <span class="code-comment"># Relational JSON file database with atomic disk flush</span>
+│   │   ├── websocket/gateway.ts           <span class="code-comment"># Presence, chat delivery & WebRTC signaling gateway</span>
+│   │   └── routes/                        <span class="code-comment"># Modular REST routes for auth, contacts, calls, feed</span>
+│   └── package.json
+│
+├── <span class="code-accent">.github/workflows/</span>
+│   ├── deploy.yml                         <span class="code-comment"># Two-stage GitHub Pages compilation and deploy pipeline</span>
+│   └── android-build.yml                  <span class="code-comment"># Automated Android AAB & APK release build and sign</span>
+│
+├── <span class="code-accent">features-and-technology.html</span>            <span class="code-comment"># Standalone interactive documentation (This Document)</span>
+├── <span class="code-accent">privacy-policy.html</span>                     <span class="code-comment"># Official legal privacy policy for Play Store</span>
+├── <span class="code-accent">PLAYSTORE_LISTING.md</span>                    <span class="code-comment"># Ready-to-copy store metadata and descriptions</span>
+└── <span class="code-accent">README.md</span>                               <span class="code-comment"># Technical overview and developer setup guide</span></code></pre>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="doc-footer">
+      <p style="margin-bottom: 8px;"><strong>🕉️ AAM Messaging Platform</strong> — Built with Pride in India 🇮🇳</p>
+      <p style="margin-bottom: 12px;">Complying with Google Play Store 2026 Developer Guidelines & the Indian Digital Personal Data Protection Act 2023.</p>
+      <p>
+        <a href="https://bapanayya.github.io/AAM-Messaging-App/" target="_blank">Live Web Application</a> •
+        <a href="https://github.com/bapanayya/AAM-Messaging-App" target="_blank">GitHub Repository</a> •
+        <a href="https://bapanayya.github.io/AAM-Messaging-App/privacy-policy.html" target="_blank">Privacy Policy</a>
+      </p>
+    </footer>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — AAM: Privacy-First Messaging & Social Media</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #111827;
+      --border: #1f2937;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --accent: #f59e0b;
+      --emerald: #10b981;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      margin: 0 0 8px 0;
+    }
+    .last-updated {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    h2 {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 36px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+    }
+    p, li {
+      font-size: 14.5px;
+      color: #e5e7eb;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .highlight {
+      color: var(--emerald);
+      font-weight: 600;
+    }
+    footer {
+      margin-top: 60px;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge">Official Legal Document • Google Play Verified</div>
+      <h1>Privacy Policy for AAM</h1>
+      <div class="last-updated">Last Updated & Effective: 25 November 2026 | Application Version: 1.0.0</div>
+    </header>
+
+    <div class="card">
+      <strong>Core Privacy Pledge:</strong> AAM is an end-to-end encrypted (E2EE) messaging and social media platform built on the principle of <em>user data sovereignty</em>. We do not sell your personal data, we do not inject third-party advertising trackers, and we cannot read or decrypt the contents of your private messages, photographs, videos, or calls.
+    </div>
+
+    <h2>1. Information We Collect</h2>
+    <p>AAM adheres to strict data minimization:</p>
+    <ul>
+      <li><strong>Account Credentials:</strong> Username, display name, mobile phone number or email address (for account recovery and contact discovery), and salted cryptographic password hashes (Argon2id/bcrypt).</li>
+      <li><strong>Public Identity Keys:</strong> Public cryptographic keys (X25519/Ed25519) published to our directory so other accepted users can wrap end-to-end encrypted payloads for you. Private keys <strong>never leave your device</strong>.</li>
+      <li><strong>Contacts & Relationships:</strong> Your list of accepted contacts and friend requests, managed only with your explicit mutual consent.</li>
+      <li><strong>Transient Metadata:</strong> Ephemeral online status/heartbeats to enable real-time WebSockets and WebRTC peer signaling. We avoid persistent behavioral location or activity tracking.</li>
+    </ul>
+
+    <h2>2. Storage Modes & User Data Sovereignty</h2>
+    <p>AAM is built around three distinct user-selectable storage modes:</p>
+    <ul>
+      <li><span class="highlight">Mode 1: Local Device Storage (Default & Free):</span> Your messages and media are stored exclusively on your device. When communicating with an offline recipient, undelivered content remains safely in your device's local pending queue ("My Pending Transfers") and is transferred peer-to-peer once the recipient reconnects. <strong>Zero cloud content storage exists on our servers.</strong></li>
+      <li><span class="highlight">Mode 2: Local Storage + Encrypted Cloud Backup:</span> Your device remains the primary working store. Client-encrypted backup snapshots are preserved in our cloud solely for phone loss recovery. These snapshots cannot be decrypted by our servers.</li>
+      <li><span class="highlight">Mode 3: Paid Encrypted Cloud Storage:</span> Encrypted messages and media are buffered in cloud storage to facilitate real-time multi-device synchronization and offline delivery. All payloads are end-to-end encrypted on your device before transmission.</li>
+    </ul>
+
+    <h2>3. Audio and Video Calling (WebRTC)</h2>
+    <p>One-to-one and group voice/video calls utilize WebRTC encrypted transport. <strong>Call audio and video streams are never recorded or stored on our servers.</strong> Call logs on our servers retain only basic connection metadata (duration, timestamp, participants) which users can delete at any time.</p>
+
+    <h2>4. Device Permissions & Purpose of Use</h2>
+    <ul>
+      <li><strong>Camera (android.permission.CAMERA):</strong> Used only when you initiate or answer a video call, take a photo status, or capture media to share. Never accessed in the background.</li>
+      <li><strong>Microphone (android.permission.RECORD_AUDIO):</strong> Used only during active voice/video calls or when recording a voice note.</li>
+      <li><strong>Internet & Network State:</strong> Used to maintain secure WebSocket signaling, presence, and WebRTC peer routes.</li>
+    </ul>
+
+    <h2>5. Data Deletion and Account Removal (Google Play Compliance)</h2>
+    <p>You have full ownership of your data:</p>
+    <ul>
+      <li>You can clear your local media cache, call logs, or message history directly inside the application settings.</li>
+      <li>To request complete account deletion (including your verified identifier, username, and public keys), you can tap "Delete Account" in Settings or email our Data Protection Officer at: <a href="mailto:privacy@AAM.in" style="color:var(--accent);">privacy@AAM.in</a>. All associated server records will be permanently purged within 30 days.</li>
+    </ul>
+
+    <h2>6. Compliance with Indian DPDP Act 2023 & GDPR</h2>
+    <p>AAM complies fully with the <em>Digital Personal Data Protection Act (India, 2023)</em> and the European Union <em>General Data Protection Regulation (GDPR)</em>. Data processing is conducted lawfully with explicit user consent, purpose limitation, and storage minimization.</p>
+
+    <h2>7. Developer & Grievance Contact</h2>
+    <p><strong>Publisher:</strong> The Competitive Edge / Bapanayya<br>
+    <strong>Application:</strong> AAM: Privacy-First Messaging & Social Media<br>
+    <strong>Support & Grievance Officer:</strong> <a href="mailto:bapanayya@gmail.com" style="color:var(--accent);">bapanayya@gmail.com</a><br>
+    <strong>Repository:</strong> <a href="https://github.com/bapanayya" style="color:var(--accent);">https://github.com/bapanayya</a></p>
+
+    <footer>
+      &copy; 2026 AAM Sovereign Communication Infrastructure. Proudly Made in India 🇮🇳. All rights reserved.
+    </footer>
+  </div>
+</body>
+</html>
