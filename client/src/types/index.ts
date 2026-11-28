@@ -199,6 +199,7 @@ export interface FriendRequest {
   senderId: string;
   recipientId: string;
   status: 'pending' | 'accepted' | 'rejected' | 'cancelled';
+  message?: string;
   sender?: {
     id: string;
     username: string;

@@ -95,8 +95,15 @@ userRouter.get('/search', authMiddleware, (req: AuthRequest, res: Response) => {
       const matchUsername = u.username.toLowerCase().includes(q);
       const matchDisplayName = u.displayName.toLowerCase().includes(q);
       const matchEmail = !!(u.email && u.email.toLowerCase().includes(q));
+      const userDigits = (u.phoneNumber || '').replace(/\D/g, '');
       const matchPhoneRaw = !!(u.phoneNumber && u.phoneNumber.includes(q));
-      const matchPhoneDigits = cleanDigits.length >= 3 && !!(u.phoneNumber && u.phoneNumber.replace(/\D/g, '').includes(cleanDigits));
+      const matchPhoneDigits =
+        cleanDigits.length >= 3 &&
+        !!(
+          userDigits.includes(cleanDigits) ||
+          cleanDigits.includes(userDigits) ||
+          (userDigits.length >= 10 && cleanDigits.length >= 10 && userDigits.slice(-10) === cleanDigits.slice(-10))
+        );
       return matchUsername || matchDisplayName || matchEmail || matchPhoneRaw || matchPhoneDigits;
     })
     .map(enrichUser);

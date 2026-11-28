@@ -269,11 +269,21 @@ class ApiService {
     return this.request<{ contacts: any[] }>('/contacts');
   }
 
-  public async sendFriendRequest(target: string) {
+  public async sendFriendRequest(target: string, message?: string) {
     const isUserId = target.startsWith('usr_');
     return this.request<{ request: any }>('/contacts/requests', {
       method: 'POST',
-      body: JSON.stringify(isUserId ? { recipientId: target } : { identifier: target }),
+      body: JSON.stringify({
+        ...(isUserId ? { recipientId: target } : { identifier: target }),
+        message: message?.trim() || undefined,
+      }),
+    });
+  }
+
+  public async syncDeviceContacts(deviceContacts: any[]) {
+    return this.request<{ success: boolean; matchedCount: number; matchedUsers: any[] }>('/contacts/sync-device', {
+      method: 'POST',
+      body: JSON.stringify({ deviceContacts }),
     });
   }
 

@@ -1,7 +1,35 @@
 {
   "users": [],
   "credentials": [],
-  "settings": [],
+  "settings": [
+    {
+      "userId": "usr_101e05f3",
+      "allowLastSeen": true,
+      "allowReadReceipts": true,
+      "specialAlertContacts": [],
+      "theme": "dark",
+      "autoDownloadMedia": true,
+      "videoQuality": "high"
+    },
+    {
+      "userId": "usr_98d7b753",
+      "allowLastSeen": true,
+      "allowReadReceipts": true,
+      "specialAlertContacts": [],
+      "theme": "dark",
+      "autoDownloadMedia": true,
+      "videoQuality": "high"
+    },
+    {
+      "userId": "usr_cf95a19a",
+      "allowLastSeen": true,
+      "allowReadReceipts": true,
+      "specialAlertContacts": [],
+      "theme": "dark",
+      "autoDownloadMedia": true,
+      "videoQuality": "high"
+    }
+  ],
   "contacts": [],
   "friendRequests": [],
   "blockedUsers": [],

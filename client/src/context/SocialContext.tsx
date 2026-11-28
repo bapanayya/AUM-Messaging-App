@@ -3,9 +3,11 @@ import { DailyFeedItem, StatusGroup, FriendRequest, UserBackup, Advertisement } 
 import { api } from '../services/api';
 import { socket } from '../services/socket';
 import { useAuth } from './AuthContext';
+import { readDeviceContacts } from '../services/deviceContacts';
 
 interface SocialContextType {
   contacts: any[];
+  deviceMatchedContacts: any[];
   friendRequests: { incoming: FriendRequest[]; outgoing: FriendRequest[] };
   dailyFeedItems: DailyFeedItem[];
   statusGroups: StatusGroup[];
@@ -14,7 +16,8 @@ interface SocialContextType {
   advertisements: Advertisement[];
   loadContacts: () => Promise<void>;
   loadFriendRequests: () => Promise<void>;
-  sendFriendRequest: (recipientId: string) => Promise<void>;
+  syncDeviceContacts: (contactsList?: any[]) => Promise<{ matchedCount: number; matchedUsers: any[] }>;
+  sendFriendRequest: (recipientId: string, message?: string) => Promise<void>;
   acceptFriendRequest: (requestId: string) => Promise<void>;
   rejectFriendRequest: (requestId: string) => Promise<void>;
   cancelFriendRequest: (requestId: string) => Promise<void>;
@@ -50,6 +53,14 @@ const SocialContext = createContext<SocialContextType | undefined>(undefined);
 export const SocialProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const [contacts, setContacts] = useState<any[]>([]);
+  const [deviceMatchedContacts, setDeviceMatchedContacts] = useState<any[]>(() => {
+    try {
+      const cached = localStorage.getItem('aam_matched_device_contacts');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
   const [friendRequests, setFriendRequests] = useState<{ incoming: FriendRequest[]; outgoing: FriendRequest[] }>({
     incoming: [],
     outgoing: [],
@@ -147,8 +158,28 @@ export const SocialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [user, loadContacts, loadFriendRequests, loadDailyFeed, loadStatusUpdates, loadStorageSummary, loadAdvertisements]);
 
-  const sendFriendRequest = async (recipientId: string) => {
-    await api.sendFriendRequest(recipientId);
+  const syncDeviceContacts = async (contactsList?: any[]) => {
+    let toSync = contactsList;
+    if (!toSync || toSync.length === 0) {
+      const res = await readDeviceContacts();
+      toSync = res.contacts;
+    }
+    if (!toSync || toSync.length === 0) {
+      return { matchedCount: 0, matchedUsers: [] };
+    }
+    const res = await api.syncDeviceContacts(toSync);
+    if (res?.matchedUsers) {
+      setDeviceMatchedContacts(res.matchedUsers);
+      try {
+        localStorage.setItem('aam_matched_device_contacts', JSON.stringify(res.matchedUsers));
+      } catch {}
+    }
+    await loadContacts();
+    return res;
+  };
+
+  const sendFriendRequest = async (recipientId: string, message?: string) => {
+    await api.sendFriendRequest(recipientId, message);
     await loadFriendRequests();
   };
 
@@ -261,6 +292,7 @@ export const SocialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     <SocialContext.Provider
       value={{
         contacts,
+        deviceMatchedContacts,
         friendRequests,
         dailyFeedItems,
         statusGroups,
@@ -269,6 +301,7 @@ export const SocialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         advertisements,
         loadContacts,
         loadFriendRequests,
+        syncDeviceContacts,
         sendFriendRequest,
         acceptFriendRequest,
         rejectFriendRequest,

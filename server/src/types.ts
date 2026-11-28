@@ -38,6 +38,7 @@ export interface FriendRequest {
   senderId: string;
   recipientId: string;
   status: 'pending' | 'accepted' | 'rejected' | 'cancelled';
+  message?: string;
   createdAt: string;
   updatedAt: string;
 }

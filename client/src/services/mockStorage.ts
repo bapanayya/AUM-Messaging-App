@@ -377,6 +377,7 @@ export class MockStorageService {
         senderId: this.currentUserId,
         recipientId: recId || 'unknown',
         status: 'pending',
+        message: body.message?.trim() || undefined,
         createdAt: new Date().toISOString(),
         sender: this.getCurrentUser(),
         recipient: recipient
@@ -386,6 +387,96 @@ export class MockStorageService {
       this.friendRequests.push(fr);
       this.save();
       return { request: fr, friendRequest: fr };
+    }
+
+    if (cleanPath === '/contacts/sync-device' && method === 'POST') {
+      const devContacts = Array.isArray(body?.deviceContacts) ? body.deviceContacts : [];
+      const matchedUsers: any[] = [];
+      const now = new Date().toISOString();
+
+      const getDigits10 = (s?: string) => {
+        if (!s) return '';
+        const d = s.replace(/\D/g, '');
+        return d.length >= 10 ? d.slice(-10) : d;
+      };
+
+      for (const item of devContacts) {
+        if (!item) continue;
+        const devName = item.name || '';
+        const phones = [
+          ...(item.phone ? [item.phone] : []),
+          ...(Array.isArray(item.phones) ? item.phones.map((p: any) => (typeof p === 'string' ? p : p?.number)) : []),
+        ].filter(Boolean);
+        const emails = [
+          ...(item.email ? [item.email.toLowerCase()] : []),
+          ...(Array.isArray(item.emails) ? item.emails.map((e: any) => (typeof e === 'string' ? e.toLowerCase() : e?.address?.toLowerCase())) : []),
+        ].filter(Boolean);
+
+        const candDigits = phones.map(getDigits10);
+
+        for (const u of this.users || []) {
+          if (u.id === this.currentUserId) continue;
+          const uDigits = getDigits10(u.phoneNumber);
+          const uEmail = (u.email || '').toLowerCase();
+
+          const matches =
+            (uEmail && emails.includes(uEmail)) ||
+            (uDigits && candDigits.some((cd) => cd === uDigits || (cd.length >= 10 && uDigits.length >= 10 && cd.slice(-10) === uDigits.slice(-10))));
+
+          if (matches && !matchedUsers.some((m) => m.id === u.id)) {
+            // Ensure accepted contacts
+            if (!this.contacts.some((c) => c.userId === this.currentUserId && c.contactUserId === u.id)) {
+              this.contacts.push({
+                id: 'c_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+                userId: this.currentUserId,
+                contactUserId: u.id,
+                relationshipStatus: 'accepted',
+                createdAt: now,
+              });
+            }
+            if (!this.contacts.some((c) => c.userId === u.id && c.contactUserId === this.currentUserId)) {
+              this.contacts.push({
+                id: 'c_' + (Date.now() + 1) + '_' + Math.random().toString(36).substring(2, 6),
+                userId: u.id,
+                contactUserId: this.currentUserId,
+                relationshipStatus: 'accepted',
+                createdAt: now,
+              });
+            }
+            // Ensure conversation
+            let conv = (this.conversations || []).find(
+              (c) => c.type === 'direct' && c.memberIds.includes(this.currentUserId) && c.memberIds.includes(u.id)
+            );
+            if (!conv) {
+              conv = {
+                id: 'conv_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+                type: 'direct',
+                title: u.displayName || u.username,
+                createdBy: this.currentUserId,
+                memberIds: [this.currentUserId, u.id],
+                adminIds: [this.currentUserId],
+                createdAt: now,
+                updatedAt: now,
+              };
+              this.conversations.push(conv);
+            }
+            matchedUsers.push({
+              id: u.id,
+              username: u.username,
+              displayName: u.displayName,
+              phoneNumber: u.phoneNumber,
+              email: u.email,
+              avatar: u.avatar,
+              deviceContactName: devName || u.displayName,
+              isFriend: true,
+              isDeviceContact: true,
+              conversationId: conv.id,
+            });
+          }
+        }
+      }
+      this.save();
+      return { success: true, matchedCount: matchedUsers.length, matchedUsers };
     }
 
     if ((cleanPath.startsWith('/contacts/requests/') || cleanPath.startsWith('/contacts/request/')) && cleanPath.endsWith('/accept')) {
